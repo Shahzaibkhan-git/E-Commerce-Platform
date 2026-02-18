@@ -1,0 +1,437 @@
+services:
+  user-service:
+    build:
+      context: ./services/user-service
+      dockerfile: ../../infra/docker/Dockerfile.service
+      args:
+        WSGI_MODULE: user_service.wsgi:application
+    container_name: user-service
+    env_file:
+      - .env
+    environment:
+      APP_PORT: 8000
+      DJANGO_SETTINGS_MODULE: user_service.settings
+      USER_DB_NAME: ${USER_DB_NAME:-user_db}
+      USER_DB_USER: ${USER_DB_USER:-postgres}
+      USER_DB_PASSWORD: ${USER_DB_PASSWORD:-postgres}
+      USER_DB_HOST: ${USER_DB_HOST:-user-db}
+      USER_DB_PORT: ${USER_DB_PORT:-5432}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL:-amqp://guest:guest@rabbitmq:5672//}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND:-redis://redis:6379/1}
+    ports:
+      - "${USER_SERVICE_PORT:-8001}:8000"
+    depends_on:
+      - user-db
+      - redis
+      - rabbitmq
+    restart: unless-stopped
+
+  user-worker:
+    build:
+      context: ./services/user-service
+      dockerfile: ../../infra/docker/Dockerfile.service
+      args:
+        WSGI_MODULE: user_service.wsgi:application
+    container_name: user-worker
+    command: celery -A user_service worker --loglevel=INFO
+    env_file:
+      - .env
+    environment:
+      DJANGO_SETTINGS_MODULE: user_service.settings
+      USER_DB_NAME: ${USER_DB_NAME:-user_db}
+      USER_DB_USER: ${USER_DB_USER:-postgres}
+      USER_DB_PASSWORD: ${USER_DB_PASSWORD:-postgres}
+      USER_DB_HOST: ${USER_DB_HOST:-user-db}
+      USER_DB_PORT: ${USER_DB_PORT:-5432}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL:-amqp://guest:guest@rabbitmq:5672//}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND:-redis://redis:6379/1}
+    depends_on:
+      - user-db
+      - redis
+      - rabbitmq
+    restart: unless-stopped
+
+  catalog-service:
+    build:
+      context: ./services/catalog-service
+      dockerfile: ../../infra/docker/Dockerfile.service
+      args:
+        WSGI_MODULE: catalog_service.wsgi:application
+    container_name: catalog-service
+    env_file:
+      - .env
+    environment:
+      APP_PORT: 8000
+      DJANGO_SETTINGS_MODULE: catalog_service.settings
+      CATALOG_DB_NAME: ${CATALOG_DB_NAME:-catalog_db}
+      CATALOG_DB_USER: ${CATALOG_DB_USER:-postgres}
+      CATALOG_DB_PASSWORD: ${CATALOG_DB_PASSWORD:-postgres}
+      CATALOG_DB_HOST: ${CATALOG_DB_HOST:-catalog-db}
+      CATALOG_DB_PORT: ${CATALOG_DB_PORT:-5432}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL:-amqp://guest:guest@rabbitmq:5672//}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND:-redis://redis:6379/1}
+    ports:
+      - "${CATALOG_SERVICE_PORT:-8002}:8000"
+    depends_on:
+      - catalog-db
+      - redis
+      - rabbitmq
+    restart: unless-stopped
+
+  catalog-worker:
+    build:
+      context: ./services/catalog-service
+      dockerfile: ../../infra/docker/Dockerfile.service
+      args:
+        WSGI_MODULE: catalog_service.wsgi:application
+    container_name: catalog-worker
+    command: celery -A catalog_service worker --loglevel=INFO
+    env_file:
+      - .env
+    environment:
+      DJANGO_SETTINGS_MODULE: catalog_service.settings
+      CATALOG_DB_NAME: ${CATALOG_DB_NAME:-catalog_db}
+      CATALOG_DB_USER: ${CATALOG_DB_USER:-postgres}
+      CATALOG_DB_PASSWORD: ${CATALOG_DB_PASSWORD:-postgres}
+      CATALOG_DB_HOST: ${CATALOG_DB_HOST:-catalog-db}
+      CATALOG_DB_PORT: ${CATALOG_DB_PORT:-5432}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL:-amqp://guest:guest@rabbitmq:5672//}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND:-redis://redis:6379/1}
+    depends_on:
+      - catalog-db
+      - redis
+      - rabbitmq
+    restart: unless-stopped
+
+  cart-service:
+    build:
+      context: ./services/cart-service
+      dockerfile: ../../infra/docker/Dockerfile.service
+      args:
+        WSGI_MODULE: cart_service.wsgi:application
+    container_name: cart-service
+    env_file:
+      - .env
+    environment:
+      APP_PORT: 8000
+      DJANGO_SETTINGS_MODULE: cart_service.settings
+      CART_DB_NAME: ${CART_DB_NAME:-cart_db}
+      CART_DB_USER: ${CART_DB_USER:-postgres}
+      CART_DB_PASSWORD: ${CART_DB_PASSWORD:-postgres}
+      CART_DB_HOST: ${CART_DB_HOST:-cart-db}
+      CART_DB_PORT: ${CART_DB_PORT:-5432}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL:-amqp://guest:guest@rabbitmq:5672//}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND:-redis://redis:6379/1}
+    ports:
+      - "${CART_SERVICE_PORT:-8003}:8000"
+    depends_on:
+      - cart-db
+      - redis
+      - rabbitmq
+    restart: unless-stopped
+
+  cart-worker:
+    build:
+      context: ./services/cart-service
+      dockerfile: ../../infra/docker/Dockerfile.service
+      args:
+        WSGI_MODULE: cart_service.wsgi:application
+    container_name: cart-worker
+    command: celery -A cart_service worker --loglevel=INFO
+    env_file:
+      - .env
+    environment:
+      DJANGO_SETTINGS_MODULE: cart_service.settings
+      CART_DB_NAME: ${CART_DB_NAME:-cart_db}
+      CART_DB_USER: ${CART_DB_USER:-postgres}
+      CART_DB_PASSWORD: ${CART_DB_PASSWORD:-postgres}
+      CART_DB_HOST: ${CART_DB_HOST:-cart-db}
+      CART_DB_PORT: ${CART_DB_PORT:-5432}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL:-amqp://guest:guest@rabbitmq:5672//}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND:-redis://redis:6379/1}
+    depends_on:
+      - cart-db
+      - redis
+      - rabbitmq
+    restart: unless-stopped
+
+  order-service:
+    build:
+      context: ./services/order-service
+      dockerfile: ../../infra/docker/Dockerfile.service
+      args:
+        WSGI_MODULE: order_service.wsgi:application
+    container_name: order-service
+    env_file:
+      - .env
+    environment:
+      APP_PORT: 8000
+      DJANGO_SETTINGS_MODULE: order_service.settings
+      ORDER_DB_NAME: ${ORDER_DB_NAME:-order_db}
+      ORDER_DB_USER: ${ORDER_DB_USER:-postgres}
+      ORDER_DB_PASSWORD: ${ORDER_DB_PASSWORD:-postgres}
+      ORDER_DB_HOST: ${ORDER_DB_HOST:-order-db}
+      ORDER_DB_PORT: ${ORDER_DB_PORT:-5432}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL:-amqp://guest:guest@rabbitmq:5672//}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND:-redis://redis:6379/1}
+    ports:
+      - "${ORDER_SERVICE_PORT:-8004}:8000"
+    depends_on:
+      - order-db
+      - redis
+      - rabbitmq
+    restart: unless-stopped
+
+  order-worker:
+    build:
+      context: ./services/order-service
+      dockerfile: ../../infra/docker/Dockerfile.service
+      args:
+        WSGI_MODULE: order_service.wsgi:application
+    container_name: order-worker
+    command: celery -A order_service worker --loglevel=INFO
+    env_file:
+      - .env
+    environment:
+      DJANGO_SETTINGS_MODULE: order_service.settings
+      ORDER_DB_NAME: ${ORDER_DB_NAME:-order_db}
+      ORDER_DB_USER: ${ORDER_DB_USER:-postgres}
+      ORDER_DB_PASSWORD: ${ORDER_DB_PASSWORD:-postgres}
+      ORDER_DB_HOST: ${ORDER_DB_HOST:-order-db}
+      ORDER_DB_PORT: ${ORDER_DB_PORT:-5432}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL:-amqp://guest:guest@rabbitmq:5672//}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND:-redis://redis:6379/1}
+    depends_on:
+      - order-db
+      - redis
+      - rabbitmq
+    restart: unless-stopped
+
+  payment-service:
+    build:
+      context: ./services/payment-service
+      dockerfile: ../../infra/docker/Dockerfile.service
+      args:
+        WSGI_MODULE: payment_service.wsgi:application
+    container_name: payment-service
+    env_file:
+      - .env
+    environment:
+      APP_PORT: 8000
+      DJANGO_SETTINGS_MODULE: payment_service.settings
+      PAYMENT_DB_NAME: ${PAYMENT_DB_NAME:-payment_db}
+      PAYMENT_DB_USER: ${PAYMENT_DB_USER:-postgres}
+      PAYMENT_DB_PASSWORD: ${PAYMENT_DB_PASSWORD:-postgres}
+      PAYMENT_DB_HOST: ${PAYMENT_DB_HOST:-payment-db}
+      PAYMENT_DB_PORT: ${PAYMENT_DB_PORT:-5432}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-replace-with-stripe-secret}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-replace-with-stripe-webhook-secret}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL:-amqp://guest:guest@rabbitmq:5672//}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND:-redis://redis:6379/1}
+    ports:
+      - "${PAYMENT_SERVICE_PORT:-8005}:8000"
+    depends_on:
+      - payment-db
+      - redis
+      - rabbitmq
+    restart: unless-stopped
+
+  payment-worker:
+    build:
+      context: ./services/payment-service
+      dockerfile: ../../infra/docker/Dockerfile.service
+      args:
+        WSGI_MODULE: payment_service.wsgi:application
+    container_name: payment-worker
+    command: celery -A payment_service worker --loglevel=INFO
+    env_file:
+      - .env
+    environment:
+      DJANGO_SETTINGS_MODULE: payment_service.settings
+      PAYMENT_DB_NAME: ${PAYMENT_DB_NAME:-payment_db}
+      PAYMENT_DB_USER: ${PAYMENT_DB_USER:-postgres}
+      PAYMENT_DB_PASSWORD: ${PAYMENT_DB_PASSWORD:-postgres}
+      PAYMENT_DB_HOST: ${PAYMENT_DB_HOST:-payment-db}
+      PAYMENT_DB_PORT: ${PAYMENT_DB_PORT:-5432}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-replace-with-stripe-secret}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-replace-with-stripe-webhook-secret}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL:-amqp://guest:guest@rabbitmq:5672//}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND:-redis://redis:6379/1}
+    depends_on:
+      - payment-db
+      - redis
+      - rabbitmq
+    restart: unless-stopped
+
+  notification-service:
+    build:
+      context: ./services/notification-service
+      dockerfile: ../../infra/docker/Dockerfile.service
+      args:
+        WSGI_MODULE: notification_service.wsgi:application
+    container_name: notification-service
+    env_file:
+      - .env
+    environment:
+      APP_PORT: 8000
+      DJANGO_SETTINGS_MODULE: notification_service.settings
+      NOTIFICATION_DB_NAME: ${NOTIFICATION_DB_NAME:-notification_db}
+      NOTIFICATION_DB_USER: ${NOTIFICATION_DB_USER:-postgres}
+      NOTIFICATION_DB_PASSWORD: ${NOTIFICATION_DB_PASSWORD:-postgres}
+      NOTIFICATION_DB_HOST: ${NOTIFICATION_DB_HOST:-notification-db}
+      NOTIFICATION_DB_PORT: ${NOTIFICATION_DB_PORT:-5432}
+      SENDGRID_API_KEY: ${SENDGRID_API_KEY:-replace-with-sendgrid-api-key}
+      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID:-replace-with-twilio-account-sid}
+      TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN:-replace-with-twilio-auth-token}
+      TWILIO_FROM_NUMBER: ${TWILIO_FROM_NUMBER:-+10000000000}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL:-amqp://guest:guest@rabbitmq:5672//}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND:-redis://redis:6379/1}
+    ports:
+      - "${NOTIFICATION_SERVICE_PORT:-8006}:8000"
+    depends_on:
+      - notification-db
+      - redis
+      - rabbitmq
+    restart: unless-stopped
+
+  notification-worker:
+    build:
+      context: ./services/notification-service
+      dockerfile: ../../infra/docker/Dockerfile.service
+      args:
+        WSGI_MODULE: notification_service.wsgi:application
+    container_name: notification-worker
+    command: celery -A notification_service worker --loglevel=INFO
+    env_file:
+      - .env
+    environment:
+      DJANGO_SETTINGS_MODULE: notification_service.settings
+      NOTIFICATION_DB_NAME: ${NOTIFICATION_DB_NAME:-notification_db}
+      NOTIFICATION_DB_USER: ${NOTIFICATION_DB_USER:-postgres}
+      NOTIFICATION_DB_PASSWORD: ${NOTIFICATION_DB_PASSWORD:-postgres}
+      NOTIFICATION_DB_HOST: ${NOTIFICATION_DB_HOST:-notification-db}
+      NOTIFICATION_DB_PORT: ${NOTIFICATION_DB_PORT:-5432}
+      SENDGRID_API_KEY: ${SENDGRID_API_KEY:-replace-with-sendgrid-api-key}
+      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID:-replace-with-twilio-account-sid}
+      TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN:-replace-with-twilio-auth-token}
+      TWILIO_FROM_NUMBER: ${TWILIO_FROM_NUMBER:-+10000000000}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL:-amqp://guest:guest@rabbitmq:5672//}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND:-redis://redis:6379/1}
+    depends_on:
+      - notification-db
+      - redis
+      - rabbitmq
+    restart: unless-stopped
+
+  user-db:
+    image: postgres:16-alpine
+    container_name: user-db
+    environment:
+      POSTGRES_DB: ${USER_DB_NAME:-user_db}
+      POSTGRES_USER: ${USER_DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${USER_DB_PASSWORD:-postgres}
+    volumes:
+      - user_db_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    restart: unless-stopped
+
+  catalog-db:
+    image: postgres:16-alpine
+    container_name: catalog-db
+    environment:
+      POSTGRES_DB: ${CATALOG_DB_NAME:-catalog_db}
+      POSTGRES_USER: ${CATALOG_DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${CATALOG_DB_PASSWORD:-postgres}
+    volumes:
+      - catalog_db_data:/var/lib/postgresql/data
+    ports:
+      - "5434:5432"
+    restart: unless-stopped
+
+  cart-db:
+    image: postgres:16-alpine
+    container_name: cart-db
+    environment:
+      POSTGRES_DB: ${CART_DB_NAME:-cart_db}
+      POSTGRES_USER: ${CART_DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${CART_DB_PASSWORD:-postgres}
+    volumes:
+      - cart_db_data:/var/lib/postgresql/data
+    ports:
+      - "5435:5432"
+    restart: unless-stopped
+
+  order-db:
+    image: postgres:16-alpine
+    container_name: order-db
+    environment:
+      POSTGRES_DB: ${ORDER_DB_NAME:-order_db}
+      POSTGRES_USER: ${ORDER_DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${ORDER_DB_PASSWORD:-postgres}
+    volumes:
+      - order_db_data:/var/lib/postgresql/data
+    ports:
+      - "5436:5432"
+    restart: unless-stopped
+
+  payment-db:
+    image: postgres:16-alpine
+    container_name: payment-db
+    environment:
+      POSTGRES_DB: ${PAYMENT_DB_NAME:-payment_db}
+      POSTGRES_USER: ${PAYMENT_DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${PAYMENT_DB_PASSWORD:-postgres}
+    volumes:
+      - payment_db_data:/var/lib/postgresql/data
+    ports:
+      - "5437:5432"
+    restart: unless-stopped
+
+  notification-db:
+    image: postgres:16-alpine
+    container_name: notification-db
+    environment:
+      POSTGRES_DB: ${NOTIFICATION_DB_NAME:-notification_db}
+      POSTGRES_USER: ${NOTIFICATION_DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${NOTIFICATION_DB_PASSWORD:-postgres}
+    volumes:
+      - notification_db_data:/var/lib/postgresql/data
+    ports:
+      - "5438:5432"
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "${REDIS_HOST_PORT:-6380}:6379"
+    restart: unless-stopped
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "${RABBITMQ_HOST_PORT:-5673}:5672"
+      - "${RABBITMQ_MGMT_HOST_PORT:-15673}:15672"
+    restart: unless-stopped
+
+volumes:
+  user_db_data:
+  catalog_db_data:
+  cart_db_data:
+  order_db_data:
+  payment_db_data:
+  notification_db_data:
