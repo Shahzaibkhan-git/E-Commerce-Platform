@@ -18,6 +18,34 @@ A Docker-based microservices e-commerce backend built with Django and Celery.
 - Redis (Celery result backend)
 - Docker Compose for local orchestration
 
+## Current Status
+
+### Done
+
+- Microservice folders created for all 6 services.
+- Django project scaffold created in each service.
+- Health endpoint (`/health/`) available in each service.
+- Celery configured in each service (`celery.py`, tasks, worker containers).
+- Docker Compose wiring completed (apps + workers + DBs + Redis + RabbitMQ).
+- Service-level Dockerfiles added for all services.
+- Environment-based settings added with `USE_SQLITE` toggle.
+- CI workflow added (`.github/workflows/ci.yml`).
+- Repository structure/docs prepared (`docs/`, `gateway/`, `infra/`, `services/README.md`).
+
+### Pending
+
+- Implement business APIs:
+  - user auth/profile
+  - catalog CRUD/listing
+  - cart operations
+  - order lifecycle
+  - payment processing
+  - notifications
+- Add serializers, permissions, and request validation.
+- Add integration tests for end-to-end checkout flow.
+- Add API gateway routing config (NGINX/Traefik).
+- Add observability stack (metrics/log dashboards) and deployment manifests.
+
 ## Repository Structure
 
 ```text
