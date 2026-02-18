@@ -21,8 +21,8 @@ A Docker-based microservices e-commerce backend built with Django and Celery.
 ## Repository Structure
 
 ```text
-services/                # All Django microservices
-infra/docker/            # Shared Docker templates
+services/                # All Django microservices (each with own Dockerfile)
+infra/                   # Shared infra notes/assets
 docs/                    # Documentation
 gateway/                 # API gateway configs (to be added)
 .github/workflows/       # CI workflows
@@ -41,6 +41,12 @@ cp .env.example .env
 
 ```bash
 docker compose up --build
+```
+
+Or with make:
+
+```bash
+make up
 ```
 
 3. Verify health endpoints:
@@ -66,3 +72,12 @@ docker compose exec user-service python manage.py shell -c "from core.tasks impo
 
 - `USE_SQLITE=True` in `.env` for quick local SQLite mode.
 - `USE_SQLITE=False` for PostgreSQL mode (recommended for Docker/microservices).
+
+## Useful Commands
+
+```bash
+make ps
+make logs
+make check
+make down
+```

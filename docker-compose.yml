@@ -2,7 +2,7 @@ services:
   user-service:
     build:
       context: ./services/user-service
-      dockerfile: ../../infra/docker/Dockerfile.service
+      dockerfile: Dockerfile
       args:
         WSGI_MODULE: user_service.wsgi:application
     container_name: user-service
@@ -22,15 +22,18 @@ services:
     ports:
       - "${USER_SERVICE_PORT:-8001}:8000"
     depends_on:
-      - user-db
-      - redis
-      - rabbitmq
+      user-db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     restart: unless-stopped
 
   user-worker:
     build:
       context: ./services/user-service
-      dockerfile: ../../infra/docker/Dockerfile.service
+      dockerfile: Dockerfile
       args:
         WSGI_MODULE: user_service.wsgi:application
     container_name: user-worker
@@ -48,15 +51,18 @@ services:
       CELERY_BROKER_URL: ${CELERY_BROKER_URL:-amqp://guest:guest@rabbitmq:5672//}
       CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND:-redis://redis:6379/1}
     depends_on:
-      - user-db
-      - redis
-      - rabbitmq
+      user-db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     restart: unless-stopped
 
   catalog-service:
     build:
       context: ./services/catalog-service
-      dockerfile: ../../infra/docker/Dockerfile.service
+      dockerfile: Dockerfile
       args:
         WSGI_MODULE: catalog_service.wsgi:application
     container_name: catalog-service
@@ -76,15 +82,18 @@ services:
     ports:
       - "${CATALOG_SERVICE_PORT:-8002}:8000"
     depends_on:
-      - catalog-db
-      - redis
-      - rabbitmq
+      catalog-db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     restart: unless-stopped
 
   catalog-worker:
     build:
       context: ./services/catalog-service
-      dockerfile: ../../infra/docker/Dockerfile.service
+      dockerfile: Dockerfile
       args:
         WSGI_MODULE: catalog_service.wsgi:application
     container_name: catalog-worker
@@ -102,15 +111,18 @@ services:
       CELERY_BROKER_URL: ${CELERY_BROKER_URL:-amqp://guest:guest@rabbitmq:5672//}
       CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND:-redis://redis:6379/1}
     depends_on:
-      - catalog-db
-      - redis
-      - rabbitmq
+      catalog-db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     restart: unless-stopped
 
   cart-service:
     build:
       context: ./services/cart-service
-      dockerfile: ../../infra/docker/Dockerfile.service
+      dockerfile: Dockerfile
       args:
         WSGI_MODULE: cart_service.wsgi:application
     container_name: cart-service
@@ -130,15 +142,18 @@ services:
     ports:
       - "${CART_SERVICE_PORT:-8003}:8000"
     depends_on:
-      - cart-db
-      - redis
-      - rabbitmq
+      cart-db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     restart: unless-stopped
 
   cart-worker:
     build:
       context: ./services/cart-service
-      dockerfile: ../../infra/docker/Dockerfile.service
+      dockerfile: Dockerfile
       args:
         WSGI_MODULE: cart_service.wsgi:application
     container_name: cart-worker
@@ -156,15 +171,18 @@ services:
       CELERY_BROKER_URL: ${CELERY_BROKER_URL:-amqp://guest:guest@rabbitmq:5672//}
       CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND:-redis://redis:6379/1}
     depends_on:
-      - cart-db
-      - redis
-      - rabbitmq
+      cart-db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     restart: unless-stopped
 
   order-service:
     build:
       context: ./services/order-service
-      dockerfile: ../../infra/docker/Dockerfile.service
+      dockerfile: Dockerfile
       args:
         WSGI_MODULE: order_service.wsgi:application
     container_name: order-service
@@ -184,15 +202,18 @@ services:
     ports:
       - "${ORDER_SERVICE_PORT:-8004}:8000"
     depends_on:
-      - order-db
-      - redis
-      - rabbitmq
+      order-db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     restart: unless-stopped
 
   order-worker:
     build:
       context: ./services/order-service
-      dockerfile: ../../infra/docker/Dockerfile.service
+      dockerfile: Dockerfile
       args:
         WSGI_MODULE: order_service.wsgi:application
     container_name: order-worker
@@ -210,15 +231,18 @@ services:
       CELERY_BROKER_URL: ${CELERY_BROKER_URL:-amqp://guest:guest@rabbitmq:5672//}
       CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND:-redis://redis:6379/1}
     depends_on:
-      - order-db
-      - redis
-      - rabbitmq
+      order-db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     restart: unless-stopped
 
   payment-service:
     build:
       context: ./services/payment-service
-      dockerfile: ../../infra/docker/Dockerfile.service
+      dockerfile: Dockerfile
       args:
         WSGI_MODULE: payment_service.wsgi:application
     container_name: payment-service
@@ -240,15 +264,18 @@ services:
     ports:
       - "${PAYMENT_SERVICE_PORT:-8005}:8000"
     depends_on:
-      - payment-db
-      - redis
-      - rabbitmq
+      payment-db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     restart: unless-stopped
 
   payment-worker:
     build:
       context: ./services/payment-service
-      dockerfile: ../../infra/docker/Dockerfile.service
+      dockerfile: Dockerfile
       args:
         WSGI_MODULE: payment_service.wsgi:application
     container_name: payment-worker
@@ -268,15 +295,18 @@ services:
       CELERY_BROKER_URL: ${CELERY_BROKER_URL:-amqp://guest:guest@rabbitmq:5672//}
       CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND:-redis://redis:6379/1}
     depends_on:
-      - payment-db
-      - redis
-      - rabbitmq
+      payment-db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     restart: unless-stopped
 
   notification-service:
     build:
       context: ./services/notification-service
-      dockerfile: ../../infra/docker/Dockerfile.service
+      dockerfile: Dockerfile
       args:
         WSGI_MODULE: notification_service.wsgi:application
     container_name: notification-service
@@ -300,15 +330,18 @@ services:
     ports:
       - "${NOTIFICATION_SERVICE_PORT:-8006}:8000"
     depends_on:
-      - notification-db
-      - redis
-      - rabbitmq
+      notification-db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     restart: unless-stopped
 
   notification-worker:
     build:
       context: ./services/notification-service
-      dockerfile: ../../infra/docker/Dockerfile.service
+      dockerfile: Dockerfile
       args:
         WSGI_MODULE: notification_service.wsgi:application
     container_name: notification-worker
@@ -330,9 +363,12 @@ services:
       CELERY_BROKER_URL: ${CELERY_BROKER_URL:-amqp://guest:guest@rabbitmq:5672//}
       CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND:-redis://redis:6379/1}
     depends_on:
-      - notification-db
-      - redis
-      - rabbitmq
+      notification-db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     restart: unless-stopped
 
   user-db:
@@ -346,6 +382,12 @@ services:
       - user_db_data:/var/lib/postgresql/data
     ports:
       - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${USER_DB_USER:-postgres} -d ${USER_DB_NAME:-user_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     restart: unless-stopped
 
   catalog-db:
@@ -359,6 +401,12 @@ services:
       - catalog_db_data:/var/lib/postgresql/data
     ports:
       - "5434:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${CATALOG_DB_USER:-postgres} -d ${CATALOG_DB_NAME:-catalog_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     restart: unless-stopped
 
   cart-db:
@@ -372,6 +420,12 @@ services:
       - cart_db_data:/var/lib/postgresql/data
     ports:
       - "5435:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${CART_DB_USER:-postgres} -d ${CART_DB_NAME:-cart_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     restart: unless-stopped
 
   order-db:
@@ -385,6 +439,12 @@ services:
       - order_db_data:/var/lib/postgresql/data
     ports:
       - "5436:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${ORDER_DB_USER:-postgres} -d ${ORDER_DB_NAME:-order_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     restart: unless-stopped
 
   payment-db:
@@ -398,6 +458,12 @@ services:
       - payment_db_data:/var/lib/postgresql/data
     ports:
       - "5437:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PAYMENT_DB_USER:-postgres} -d ${PAYMENT_DB_NAME:-payment_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     restart: unless-stopped
 
   notification-db:
@@ -411,6 +477,12 @@ services:
       - notification_db_data:/var/lib/postgresql/data
     ports:
       - "5438:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${NOTIFICATION_DB_USER:-postgres} -d ${NOTIFICATION_DB_NAME:-notification_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     restart: unless-stopped
 
   redis:
@@ -418,6 +490,12 @@ services:
     container_name: redis
     ports:
       - "${REDIS_HOST_PORT:-6380}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
     restart: unless-stopped
 
   rabbitmq:
@@ -426,6 +504,12 @@ services:
     ports:
       - "${RABBITMQ_HOST_PORT:-5673}:5672"
       - "${RABBITMQ_MGMT_HOST_PORT:-15673}:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
     restart: unless-stopped
 
 volumes:
